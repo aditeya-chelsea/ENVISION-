@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ENVISION — Environmental Intelligence Network</title>
+  
+  <!-- Google Fonts & Leaflet CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Custom Control Room Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="top-nav">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          <circle cx="12" cy="12" r="10"/>
+        </svg>
+      </div>
+      <div>
+        <h1>ENVISION</h1>
+      </div>
+      <span class="brand-subtitle">Environmental Intelligence Network</span>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="dashboard">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <button class="tab-btn" data-tab="map-view">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        Live Map
+      </button>
+      <button class="tab-btn" data-tab="alerts">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Alerts
+      </button>
+      <button class="tab-btn" data-tab="sensors">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+        Sensors
+      </button>
+    </nav>
+
+    <!-- Header Status Right -->
+    <div class="nav-right">
+      <!-- Theme Switcher Toggle -->
+      <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle light/dark theme" title="Switch Theme (Dark / Light)">
+        <svg class="sun-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="moon-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <span class="theme-label" id="theme-toggle-text">Dark</span>
+      </button>
+
+      <div class="system-status">
+        <div class="status-dot"></div>
+        SYSTEM ONLINE
+      </div>
+      <div class="clock-display">
+        Last updated: <span id="clock-display">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="main-wrapper">
+
+    <!-- 1. DASHBOARD TAB VIEW -->
+    <div class="tab-content active" id="tab-dashboard">
+      <div class="dashboard-view">
+
+        <!-- 4 KPI Cards -->
+        <section class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-info">
+              <h3>Active Sensors</h3>
+              <div class="kpi-value" id="kpi-active-sensors">1,284</div>
+              <div class="kpi-sub">● Network Nominal</div>
+            </div>
+            <div class="kpi-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-info">
+              <h3>Critical Alerts</h3>
+              <div class="kpi-value" id="kpi-critical-alerts">7</div>
+              <div class="kpi-sub" style="color: var(--accent-red)">Requires Intervention</div>
+            </div>
+            <div class="kpi-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-info">
+              <h3>High Risk Zones</h3>
+              <div class="kpi-value" id="kpi-high-risk-zones">23</div>
+              <div class="kpi-sub" style="color: var(--accent-orange)">Spatial Monitoring</div>
+            </div>
+            <div class="kpi-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-info">
+              <h3>Network Health</h3>
+              <div class="kpi-value" id="kpi-network-health">97.8%</div>
+              <div class="kpi-sub" style="color: var(--accent-emerald)">Telemetry Uptime</div>
+            </div>
+            <div class="kpi-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+          </div>
+        </section>
+
+        <!-- Main Content Area: Map + Side Panels -->
+        <section class="dashboard-content">
+          
+          <!-- Map Canvas Container -->
+          <div class="map-section">
+            <div id="map"></div>
+
+            <!-- Map Layers Control Overlay -->
+            <div class="map-layers-panel">
+              <div class="layers-header">
+                <h4>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/></svg>
+                  Map Layers
+                </h4>
+              </div>
+
+              <div class="layers-list">
+                <label class="layer-item">
+                  <span class="layer-checkbox">
+                    <input type="checkbox" data-layer="sensorNodes" checked>
+                    <span>Sensor Nodes</span>
+                  </span>
+                  <span class="layer-indicator" style="background: var(--accent-cyan)"></span>
+                </label>
+
+                <label class="layer-item">
+                  <span class="layer-checkbox">
+                    <input type="checkbox" data-layer="floodRisk">
+                    <span>Flood Risk</span>
+                  </span>
+                  <span class="layer-indicator" style="background: #38BDF8"></span>
+                </label>
+
+                <label class="layer-item">
+                  <span class="layer-checkbox">
+                    <input type="checkbox" data-layer="fireRisk">
+                    <span>Fire Risk</span>
+                  </span>
+                  <span class="layer-indicator" style="background: var(--accent-orange)"></span>
+                </label>
+
+                <label class="layer-item">
+                  <span class="layer-checkbox">
+                    <input type="checkbox" data-layer="airPollution">
+                    <span>Air Pollution</span>
+                  </span>
+                  <span class="layer-indicator" style="background: var(--accent-purple)"></span>
+                </label>
+
+                <label class="layer-item">
+                  <span class="layer-checkbox">
+                    <input type="checkbox" data-layer="extremeHeat">
+                    <span>Extreme Heat</span>
+                  </span>
+                  <span class="layer-indicator" style="background: var(--accent-red)"></span>
+                </label>
+
+                <label class="layer-item">
+                  <span class="layer-checkbox">
+                    <input type="checkbox" data-layer="landslideRisk">
+                    <span>Landslide Risk</span>
+                  </span>
+                  <span class="layer-indicator" style="background: var(--accent-amber)"></span>
+                </label>
+
+                <label class="layer-item">
+                  <span class="layer-checkbox">
+                    <input type="checkbox" data-layer="rainfall">
+                    <span>Rainfall</span>
+                  </span>
+                  <span class="layer-indicator" style="background: #2DD4BF"></span>
+                </label>
+              </div>
+
+              <div class="layer-actions">
+                <button class="layer-btn" id="btn-show-all-layers">SHOW ALL</button>
+                <button class="layer-btn" id="btn-hide-all-layers">HIDE ALL</button>
+              </div>
+
+              <!-- Map Basemap Provider Controls -->
+              <div class="basemap-section">
+                <div class="layers-header" style="margin-top: 10px; margin-bottom: 6px;">
+                  <h4>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                    Basemap Tile Style
+                  </h4>
+                </div>
+                <select id="basemap-select" class="basemap-dropdown">
+                  <option value="auto">Auto (Match Theme)</option>
+                  <option value="carto-dark">CartoDB Dark Matter</option>
+                  <option value="carto-light">CartoDB Positron</option>
+                  <option value="carto-voyager">CartoDB Voyager</option>
+                  <option value="osm">OpenStreetMap Standard</option>
+                </select>
+              </div>
+
+              <div class="tile-status-badge">
+                <span class="tile-status-dot"></span>
+                <span id="basemap-status-text">Tiles: Active (Open Access)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Sidebar (Risk Summary + Quick Alerts) -->
+          <aside class="dashboard-sidebar">
+            
+            <!-- Risk Summary Panel -->
+            <div class="panel-card">
+              <div class="panel-title">
+                <span>AI Risk Estimate</span>
+                <span class="panel-badge">REALTIME</span>
+              </div>
+              <div class="risk-summary-list" id="risk-summary-container">
+                <!-- Dynamically Rendered -->
+              </div>
+            </div>
+
+            <!-- Quick Active Alerts Panel -->
+            <div class="panel-card" style="flex: 1;">
+              <div class="panel-title">
+                <span>Live Environmental Alerts</span>
+                <span class="panel-badge" style="color: var(--accent-red); background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.25);">ACTIVE</span>
+              </div>
+              <div class="quick-alerts-feed" id="quick-alerts-container">
+                <!-- Dynamically Rendered -->
+              </div>
+            </div>
+
+          </aside>
+
+        </section>
+
+      </div>
+    </div>
+
+    <!-- 2. LIVE MAP FULL TAB VIEW -->
+    <div class="tab-content" id="tab-map-view">
+      <div class="dashboard-view" id="map-view-container" style="height: 100%; padding: 14px;">
+      </div>
+    </div>
+
+    <!-- 3. ALERTS TAB VIEW -->
+    <div class="tab-content" id="tab-alerts">
+      <div class="full-tab-container">
+        
+        <div class="alerts-filter-bar">
+          <div class="filter-group">
+            <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">SEVERITY:</span>
+            <button class="filter-btn alert-filter-btn active" data-severity="ALL">ALL</button>
+            <button class="filter-btn alert-filter-btn" data-severity="CRITICAL">CRITICAL</button>
+            <button class="filter-btn alert-filter-btn" data-severity="HIGH">HIGH</button>
+            <button class="filter-btn alert-filter-btn" data-severity="WARNING">WARNING</button>
+          </div>
+
+          <input type="text" class="search-input" id="alert-search-input" placeholder="Search location or hazard...">
+        </div>
+
+        <div class="alerts-list-full" id="full-alerts-container">
+          <!-- Dynamically Rendered -->
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 4. SENSORS TAB VIEW -->
+    <div class="tab-content" id="tab-sensors">
+      <div class="full-tab-container">
+        
+        <div class="alerts-filter-bar">
+          <span style="font-size: 0.85rem; font-weight: 700;">Sensor Network Inventory (13 Active Nodes)</span>
+          <input type="text" class="search-input" id="sensor-search-input" placeholder="Search sensor ID, region, or risk type...">
+        </div>
+
+        <div class="sensors-grid-full" id="full-sensors-container">
+          <!-- Dynamically Rendered -->
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Live Status Footer Bar -->
+  <footer class="status-footer">
+    <div class="telemetry-group">
+      <div class="telemetry-item">
+        <span>Sensors Online:</span>
+        <strong id="telemetry-online">1,268</strong>
+      </div>
+      <div class="telemetry-item">
+        <span>Sensors Offline:</span>
+        <strong id="telemetry-offline">16</strong>
+      </div>
+    </div>
+
+    <div class="telemetry-group">
+      <div class="telemetry-item">
+        <span>Messages Processed:</span>
+        <strong id="telemetry-messages">2.41M</strong>
+      </div>
+      <div class="telemetry-item">
+        <span>Detection Latency:</span>
+        <strong id="telemetry-latency">1.7s</strong>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Leaflet JS & App Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/sensorsData.js"></script>
+  <script src="js/simulation.js"></script>
+  <script src="js/mapManager.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
